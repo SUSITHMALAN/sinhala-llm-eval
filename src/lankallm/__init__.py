@@ -1,0 +1,3 @@
+"""LankaLLM's standalone benchmark and evaluation package."""
+
+__version__ = "0.1.0"
