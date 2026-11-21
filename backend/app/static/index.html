@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LankaLLM results</title>
+<style>
+  body { font-family: system-ui, "Noto Sans Sinhala", "Noto Sans Tamil", sans-serif; margin: 2rem; max-width: 1000px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+  th { background: #f3f3f3; }
+  .bar { background: #9aa; height: 10px; }
+</style>
+</head>
+<body>
+<h1>LankaLLM results</h1>
+<label>Run <select id="run"></select></label>
+<a id="csv" href="#">Download CSV</a>
+<pre id="meta"></pre>
+<table id="table"><thead><tr>
+  <th>Model</th><th>Language</th><th>Category</th><th>Scored / total</th><th>Failed</th><th>Accuracy [95% CI]</th><th></th>
+</tr></thead><tbody></tbody></table>
+<script>
+const select = document.getElementById("run");
+async function load(run) {
+  const [manifest, rows] = await Promise.all([
+    fetch(`/api/runs/${run}/manifest`).then(r => r.json()),
+    fetch(`/api/runs/${run}/summary`).then(r => r.ok ? r.json() : []),
+  ]);
+  document.getElementById("csv").href = `/api/runs/${run}/summary.csv`;
+  document.getElementById("meta").textContent =
+    `benchmark ${manifest.benchmark_file} | prompt ${manifest.prompt_version} | commit ${manifest.git_commit}`;
+  const body = document.querySelector("#table tbody");
+  body.replaceChildren();
+  for (const r of rows) {
+    const tr = body.insertRow();
+    const acc = r.accuracy === null ? "n/a" : `${r.accuracy.toFixed(2)} [${r.ci_low.toFixed(2)}, ${r.ci_high.toFixed(2)}]`;
+    for (const v of [r.model, r.language, r.category, `${r.n_scored}/${r.n_total}`, r.n_failed, acc]) {
+      tr.insertCell().textContent = v;
+    }
+    const cell = tr.insertCell();
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.style.width = `${(r.accuracy ?? 0) * 100}px`;
+    cell.appendChild(bar);
+  }
+}
+fetch("/api/runs").then(r => r.json()).then(runs => {
+  for (const run of runs) select.add(new Option(run, run));
+  if (runs.length) load(runs[runs.length - 1]);
+  select.value = runs[runs.length - 1] ?? "";
+});
+select.addEventListener("change", () => load(select.value));
+</script>
+</body>
+</html>
