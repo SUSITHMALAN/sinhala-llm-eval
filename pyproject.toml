@@ -18,6 +18,9 @@ dependencies = [
     "typer>=0.12",
 ]
 
+[project.scripts]
+lankallm = "lankallm.cli:app"
+
 [dependency-groups]
 dev = [
     "mypy>=1.9",
