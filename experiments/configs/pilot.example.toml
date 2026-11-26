@@ -1,0 +1,32 @@
+# Copy to pilot.toml and edit. Run:  uv run lankallm run experiments/configs/pilot.toml
+[experiment]
+name = "pilot"
+benchmark = "data/benchmark/v0.1/questions.jsonl"
+prompt_version = "p1"
+seed = 42
+temperature = 0.0
+max_tokens = 512
+max_retries = 3
+split = "dev"            # never run the private test split while developing
+limit = 20               # pilot: 20 questions first
+allow_placeholders = true  # set to false for real runs
+
+# A dry-run model: no network, no key.
+[[models]]
+name = "mock"
+provider = "mock"
+
+# Local, free: install Ollama, then `ollama pull gemma3:4b`.
+[[models]]
+name = "gemma3-4b-local"
+provider = "openai_compatible"
+base_url = "http://localhost:11434/v1"
+model = "gemma3:4b"
+
+# Hosted free tier example (verify the current URL and limits first):
+# [[models]]
+# name = "gemini-flash"
+# provider = "openai_compatible"
+# base_url = "https://generativelanguage.googleapis.com/v1beta/openai"
+# model = "gemini-2.0-flash"
+# api_key_env = "GOOGLE_API_KEY"

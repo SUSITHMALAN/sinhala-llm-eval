@@ -12,11 +12,15 @@ license = { file = "LICENSE" }
 dependencies = [
     "alembic>=1.13",
     "fastapi>=0.110",
+    "httpx>=0.28.1",
     "psycopg[binary]>=3.1",
     "pydantic>=2.6",
     "sqlalchemy>=2.0",
     "typer>=0.12",
 ]
+
+[project.scripts]
+lankallm = "lankallm.cli:app"
 
 [dependency-groups]
 dev = [
@@ -45,4 +49,4 @@ files = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "backend"]
